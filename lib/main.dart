@@ -1,7 +1,8 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:screen_capturer/screen_capturer.dart';
+import 'package:teresa/domains/painter/shape_painter.dart';
+import 'package:teresa/widgets/header_menu_bar.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,19 +14,19 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Tesura',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-  final String title;
+  const MyHomePage({super.key});
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -33,34 +34,30 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   Uint8List? bytes;
-
-  Future<void> _incrementCounter() async {
-    CapturedData? capturedData = await screenCapturer.capture(
-      mode: CaptureMode.region,
-      copyToClipboard: true,
-    );
-    print('capture');
-    setState(() {
-      bytes = capturedData?.imageBytes;
-    });
-  }
+  Offset offset = Offset(100, 100);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Container(
-          child: bytes == null ? null : Image.memory(bytes!),
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+      body: Column(
+        children: [
+          const HeaderMenuBar(),
+          Expanded(
+            child: Listener(
+              onPointerMove: (event) {
+                setState(() {
+                  offset = event.localPosition;
+                });
+              },
+              child: CustomPaint(
+                painter: ShapePainter(offset: offset),
+                child: Container(
+                  child: bytes == null ? null : Image.memory(bytes!),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
